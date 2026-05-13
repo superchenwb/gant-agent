@@ -5,7 +5,7 @@
 **👉 给人类用户**：把下面所有内容复制粘贴到你的 AI 助手会话中，AI 会自动帮你完成安装。
 ```
 Install and configure Gant-Agent by following the instructions here:
-https://codeup.aliyun.com/gant/gant-agent/raw/master/docs/guide/installation.md
+https://codeup.aliyun.com/gant/wiki/gant-agent/raw/master/docs/guide/installation.md?spm=a2cl9.codeup_devops2020_goldlog_projectFiles.0.0.3e174dbeC8fPYb&file=installation.md
 ```
 ---
 
@@ -40,11 +40,23 @@ fi
 
 当前项目需要用到哪个业务知识库？
 
-可用的官方 Wiki：
+### 业务知识
 1. 雅迪 BOM 系统 → git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
 2. 雅迪 CRM 系统 → 即将上线
+3. skip
 
-如果不需要业务知识库，请输入 skip。
+### 技术规范
+需要加载公司通用的技术技能包吗？
+1. 是 → 安装 gant-skills git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+2. 否 → 跳过
+
+gant-skills 包含以下分类，请选择你需要的（可多选，用逗号分隔）：
+1. 前端 (frontend)
+2. 后端 (backend)
+3. 数据库 (database)
+4. 测试 (testing)
+5. 文档 (docs)
+输入示例：1,4
 
 ## 第三步：下载 Wiki 并挂载技能
 
