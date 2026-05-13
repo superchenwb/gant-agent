@@ -5,7 +5,7 @@
 **👉 给人类用户**：把下面所有内容复制粘贴到你的 AI 助手会话中，AI 会自动帮你完成安装。
 ```
 Install and configure Gant-Agent by following the instructions here:
-https://codeup.aliyun.com/gant/wiki/gant-agent/raw/master/docs/guide/installation.md?spm=a2cl9.codeup_devops2020_goldlog_projectFiles.0.0.3e174dbeC8fPYb&file=installation.md
+https://raw.githubusercontent.com/superchenwb/gant-agent/refs/heads/master/docs/guide/installation.md
 ```
 ---
 
