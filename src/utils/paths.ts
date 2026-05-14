@@ -70,7 +70,8 @@ export function getProjectDir(projectRoot?: string | null): string | null {
 }
 
 export function discoverProjectAgents(projectDir?: string | null): Record<string, string> {
-  if (!projectDir) {
+  if (projectDir === null) return {};
+  if (projectDir === undefined) {
     projectDir = getProjectDir();
   }
   if (!projectDir) return {};

@@ -1,6 +1,6 @@
 {
   "name": "gant-agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "团队级 AI 业务知识库管理工具",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,12 +15,12 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/index.ts",
+    "dev": "bun run src/index.ts",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "keywords": [
     "ai-agent",
