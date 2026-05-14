@@ -2,19 +2,28 @@
 
 # 安装
 
-**👉 给人类用户**：把下面所有内容复制粘贴到你的 AI 助手会话中，AI 会自动帮你完成安装。
+**👉 给人类用户**：把下面所有内容复制粘贴到你的 AI 助手（如 Claude、Cursor）会话中，AI 会自动帮你完成安装。
+
 ```
 Install and configure Gant-Agent by following the instructions here:
 https://raw.githubusercontent.com/superchenwb/gant-agent/refs/heads/master/docs/guide/installation.md
 ```
+
 ---
 
 # Gant-Agent 安装指南
 
 你是帮助用户安装 Gant-Agent 的 AI 助手。
-Gant-Agent 是 Gant 公司的业务技能包安装器，它会将指定的业务知识库（Wiki）挂载到 Oh-My-OpenAgent 中，让 Agent 拥有项目专属的业务知识。
+Gant-Agent 是 Gant 公司的业务技能包安装器，它会将指定的业务知识库（Wiki）和技术技能包挂载到 Oh-My-OpenAgent 中，让 Agent 拥有项目专属的业务知识和技术规范。
 
 ## 第一步：环境检查
+
+确保 Node.js 和 Git 已安装：
+
+```bash
+node --version  # 需要 >= 18
+git --version
+```
 
 确保 OpenCode 和 Oh-My-OpenAgent 已安装：
 
@@ -34,16 +43,29 @@ else
 fi
 ```
 
-## 第二步：询问用户需要哪个业务知识库
+## 第二步：安装 Gant-Agent
+
+```bash
+npm install -g gant-agent
+```
+
+## 第三步：初始化配置
+
+```bash
+gant init
+```
+
+这会创建 `~/.gant-agent/gant.yaml` 配置文件。
+
+## 第四步：询问用户需要哪些知识库
 
 你必须向用户询问以下问题，等待回答后再继续：
 
-当前项目需要用到哪个业务知识库？
+当前项目需要用到哪些知识库？
 
 ### 业务知识
 1. 雅迪 BOM 系统 → git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-2. 雅迪 CRM 系统 → 即将上线
-3. skip
+2. skip
 
 ### 技术规范
 需要加载公司通用的技术技能包吗？
@@ -58,30 +80,63 @@ gant-skills 包含以下分类，请选择你需要的（可多选，用逗号�
 5. 文档 (docs)
 输入示例：1,4
 
-## 第三步：下载 Wiki 并挂载技能
+## 第五步：同步知识库
 
 ```bash
-GANT_HOME="${HOME}/.gant-agent"
-mkdir -p "$GANT_HOME/knowledge"
-mkdir -p "$GANT_HOME/skills"
-
-echo "正在下载业务知识库..."
-git clone "$WIKI_URL" "$GANT_HOME/knowledge/$DOMAIN"
-
-if [ -d "$GANT_HOME/knowledge/$DOMAIN/skills" ]; then
-    ln -s "$GANT_HOME/knowledge/$DOMAIN/skills" "$GANT_HOME/skills/$DOMAIN"
-    echo "业务技能包已挂载：$DOMAIN"
-else
-    echo "警告：未找到 skills/ 目录"
-fi
+gant sync
 ```
 
-## 第四步：注册到 Oh-My-OpenAgent
+这会：
+1. 克隆所有配置的 Git 仓库
+2. 检测仓库中的 Skill
+3. 创建符号链接
+4. 生成锁定文件
 
-在 Oh-My-OpenAgent 的配置文件（~/.config/opencode/oh-my-openagent.json）中，确保 skills 扫描路径包含 ~/.gant-agent/skills/。
+## 第六步：选择 Profile 并激活
 
-## 第五步：验证
+```bash
+# 查看可用 Profiles
+gant status
+
+# 根据用户角色选择 Profile
+gant use default    # 全员默认
+gant use frontend   # 前端开发
+gant use backend    # 后端开发
+gant use fullstack  # 全栈开发
+```
+
+## 第七步：验证
 
 安装完成。现在你在 OpenCode 中提问时，Oh-My-OpenAgent 会自动加载对应的业务知识。
 
 测试一下：问我一个关于当前项目的问题，我会基于已加载的知识回答。
+
+## 自动更新
+
+当知识库有更新时：
+
+```bash
+gant sync
+```
+
+当需要切换不同技术栈时：
+
+```bash
+gant use <profile>
+```
+
+## 故障排除
+
+如果 gant sync 失败：
+
+1. 检查 Git 权限：`ssh -T git@codeup.aliyun.com`
+2. 检查配置：`gant doctor`
+3. 查看状态：`gant status`
+4. 重新初始化：`gant init --force`
+
+## 配置文件位置
+
+- 主配置：`~/.gant-agent/gant.yaml`
+- 锁定文件：`~/.gant-agent/gant.lock`
+- 缓存目录：`~/.gant-agent/cache/`
+- Profile 目录：`~/.gant-agent/profiles/`

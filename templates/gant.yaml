@@ -1,0 +1,81 @@
+version: '1.0'
+
+# ═══════════════════════════════════════════
+# Gant-Agent 配置文件模板
+# ═══════════════════════════════════════════
+
+# ── 知识源定义 ──────────────────────────────
+# 每个 source 对应一个 Git 仓库或本地目录
+# 名称只能包含：字母、数字、连字符、下划线
+
+sources:
+  # 示例 1：业务知识库（远程仓库）
+  yadea-bom:
+    repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
+    version: main                 # branch / tag / commit SHA
+    path: skills/                 # 可选：只取仓库内这个子目录
+
+  # 示例 2：技术技能包（远程仓库）
+  frontend-v2:
+    repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+    version: framework-v2
+    path: frontend/framework-v2/
+
+  backend:
+    repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+    version: main
+    path: backend/
+
+  # 示例 3：本地开发目录（本地路径）
+  my-local:
+    localPath: ~/Code/my-skills   # 支持 ~ 展开
+
+# ── Profile 定义 ────────────────────────────
+# Profile = 一组 source 的组合
+# 不同角色加载不同的 Profile
+
+profiles:
+  # 全员默认：只加载业务知识
+  default:
+    - yadea-bom
+
+  # 前端开发：业务 + 前端规范
+  frontend:
+    - yadea-bom
+    - frontend-v2
+
+  # 后端开发：业务 + 后端规范
+  backend-dev:
+    - yadea-bom
+    - backend
+
+  # 全栈开发：业务 + 前端 + 后端
+  fullstack:
+    - yadea-bom
+    - frontend-v2
+    - backend
+
+  # 开发调试：包含本地目录
+  dev:
+    - yadea-bom
+    - frontend-v2
+    - backend
+    - my-local
+
+# ── 全局设置（可选）──────────────────────────
+settings:
+  # OMC 配置文件路径
+  omcConfigPath: ~/.config/opencode/oh-my-openagent.json
+
+  # Agent skills 目录（通常不需要修改）
+  agentPaths:
+    opencode: ~/.opencode/skills
+    claude: ~/.claude/skills
+    cursor: ~/.cursor/skills
+    qoder: ~/.qoder/skills
+
+  # 链接策略：symlink（默认）| hardlink | copy
+  linkStrategy: symlink
+
+  # 是否自动检查上游更新
+  autoCheckUpdate: true
