@@ -99,7 +99,7 @@ describe('paths', () => {
 
   describe('discoverProjectAgents', () => {
     it('should return empty object when no project config exists', () => {
-      expect(discoverProjectAgents()).toEqual({});
+      expect(discoverProjectAgents(null)).toEqual({});
     });
 
     it('should detect project-level agents', () => {

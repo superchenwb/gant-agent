@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { checkForUpdates } from './utils/version-check.js';
 
+const VERSION = '0.1.0';
 const program = new Command();
 
 program
   .name('gant')
   .description('团队级 AI 业务知识库管理工具')
-  .version('0.1.0');
+  .version(VERSION);
 
 program
   .command('init')
@@ -63,3 +65,5 @@ program
   });
 
 program.parse();
+
+checkForUpdates(VERSION);
