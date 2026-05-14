@@ -93,7 +93,7 @@ describe('paths', () => {
 
   describe('getProjectDir', () => {
     it('should return null when no project config exists', () => {
-      expect(getProjectDir()).toBeNull();
+      expect(getProjectDir(null)).toBeNull();
     });
   });
 
