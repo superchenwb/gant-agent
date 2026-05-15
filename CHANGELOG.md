@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-05-15
+
+### Added
+
+- Auto-Profile 自动生成：基于 Skill 路径、名称、frontmatter tags 自动检测分类，`gant list --auto` 查看，`gant use react` 等直接使用
+- `remove <profile>` 命令：删除指定 Profile 及其所有 Agent 符号链接
+- `uninstall` 命令：完全卸载，清理所有配置、缓存和符号链接
+- frontmatter `tags` 字段支持：SKILL.md 可声明 tags，auto-profile 根据 tags 生成分类
+- `gant list --auto` 命令：列出所有自动检测的 Profiles
+
+### Changed
+
+- `gant init` 默认模板改为空配置（`sources: {}`、`profiles: default: []`），不再强制包含 yadea-bom
+- `gant use` 优先使用 auto-profile，当手动 profile 和自动分类同名时显示警告
+- 安装文档重写：修复 SSH 检查、npm 权限、项目级/用户级路径区分、本地目录配置示例
+- Agent 链接策略优化：auto-profile 目录切换时自动清理旧链接
+
+### Fixed
+
+- Auto-Profile 链接 bug：从 lockfile 中记录的 source 路径直接创建符号链接，不再依赖不存在的 `profiles/<source>/` 目录
+- 全局 Agent 目录混用问题：文档增加项目级目录隔离建议
+
 ## [0.2.0] - 2026-05-15
 
 ### Added

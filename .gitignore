@@ -27,3 +27,7 @@ coverage/
 # Temporary files
 *.tmp
 /tmp/
+
+# OMC internal
+.omc/
+.sisyphus/

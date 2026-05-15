@@ -41,6 +41,7 @@ export async function detectSkills(
       description: meta.description,
       triggers: meta.triggers,
       tools: meta.tools,
+      tags: meta.tags,
     });
     return skills;
   } catch {
@@ -73,6 +74,7 @@ export async function detectSkills(
             description: meta.description,
             triggers: meta.triggers,
             tools: meta.tools,
+            tags: meta.tags,
           });
         } catch {
           void 0;
@@ -133,6 +135,7 @@ interface SkillMeta {
   description?: string;
   triggers?: string[];
   tools?: string[];
+  tags?: string[];
   warnings: string[];
   valid: boolean;
 }
@@ -164,8 +167,9 @@ async function parseSkillMd(skillMdPath: string): Promise<SkillMeta> {
         const description = extractFrontmatterField(frontmatter, 'description');
         const triggers = extractFrontmatterList(frontmatter, 'triggers');
         const tools = extractFrontmatterList(frontmatter, 'tools');
+        const tags = extractFrontmatterList(frontmatter, 'tags');
 
-        return { name: rawName, description, triggers, tools, warnings, valid: true };
+        return { name: rawName, description, triggers, tools, tags, warnings, valid: true };
       } else {
         warnings.push('SKILL.md frontmatter 缺少 name 字段');
         return { name: null, warnings, valid: false };

@@ -11,32 +11,6 @@ interface InitOptions {
   jsonc?: boolean;
 }
 
-interface SourceTemplate {
-  name: string;
-  description: string;
-  source: Record<string, unknown>;
-}
-
-const SOURCE_TEMPLATES: SourceTemplate[] = [
-  {
-    name: 'yadea-bom',
-    description: '雅迪 BOM 业务知识库',
-    source: {
-      repo: 'git@codeup.aliyun.com:gant/wiki/yadea-wiki.git',
-      version: 'main',
-      path: 'skills/',
-    },
-  },
-  {
-    name: 'gant-skills',
-    description: 'Gant 技术技能包',
-    source: {
-      repo: 'git@codeup.aliyun.com:gant/Project-AI/gant-skills.git',
-      version: 'main',
-    },
-  },
-];
-
 export async function initCommand(options: InitOptions): Promise<void> {
   const targetHome = options.local
     ? join(cwd(), '.gant-agent')
@@ -52,19 +26,11 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   mkdirSync(dirname(targetConfig), { recursive: true });
 
-  const sources: Record<string, unknown> = {};
-  for (const template of SOURCE_TEMPLATES) {
-    sources[template.name] = template.source;
-  }
-
   const config = {
     version: '1.0',
-    sources,
+    sources: {} as Record<string, unknown>,
     profiles: {
-      default: ['yadea-bom'],
-      frontend: ['yadea-bom', 'gant-skills'],
-      backend: ['yadea-bom', 'gant-skills'],
-      fullstack: ['yadea-bom', 'gant-skills'],
+      default: [],
     } as Record<string, string[]>,
   };
 
@@ -100,34 +66,16 @@ function formatJsonc(config: Record<string, unknown>): string {
     '  // 支持 JSON with Comments (JSONC) 格式',
     `  "version": ${JSON.stringify(config.version)},`,
     '',
-    '  // 知识源配置',
-    '  "sources": {',
+    '  // 知识源配置：添加你的知识库（远程仓库或本地目录）',
+    '  "sources": {},',
+    '',
+    '  // Profile 配置：定义不同的技能组合',
+    '  "profiles": {',
+    '    "default": []',
+    '  }',
+    '}',
+    '',
   ];
-
-  const sources = config.sources as Record<string, Record<string, unknown>>;
-  const sourceKeys = Object.keys(sources);
-  sourceKeys.forEach((key, idx) => {
-    const source = sources[key];
-    const comma = idx < sourceKeys.length - 1 ? ',' : '';
-    lines.push(`    // ${SOURCE_TEMPLATES.find(t => t.name === key)?.description || key}`);
-    lines.push(`    "${key}": ${JSON.stringify(source)}${comma}`);
-  });
-
-  lines.push('  },');
-  lines.push('');
-  lines.push('  // Profile 配置：定义不同的技能组合');
-  lines.push('  "profiles": {');
-
-  const profiles = config.profiles as Record<string, string[]>;
-  const profileKeys = Object.keys(profiles);
-  profileKeys.forEach((key, idx) => {
-    const comma = idx < profileKeys.length - 1 ? ',' : '';
-    lines.push(`    "${key}": ${JSON.stringify(profiles[key])}${comma}`);
-  });
-
-  lines.push('  }');
-  lines.push('}');
-  lines.push('');
 
   return lines.join('\n');
 }

@@ -1,9 +1,11 @@
 import chalk from 'chalk';
 import { readLock } from '../core/lockfile.js';
 import { discoverLocalSkills } from '../core/skill-discovery.js';
+import { generateAutoProfiles } from '../core/auto-profile.js';
 
 interface ListOptions {
   profile?: string;
+  auto?: boolean;
 }
 
 export async function listCommand(options: ListOptions): Promise<void> {
@@ -36,6 +38,41 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
     console.log('');
     console.log(`共 ${profile.linkedSkills.length} 个 Skills`);
+    return;
+  }
+
+  if (options.auto && lock) {
+    const allSkills: Array<{ source: string; skill: { name: string; path: string; source: string } }> = [];
+    for (const [sourceName, source] of Object.entries(lock.sources)) {
+      for (const skill of source.skills) {
+        allSkills.push({ source: sourceName, skill });
+      }
+    }
+    const autoProfiles = generateAutoProfiles(allSkills);
+
+    console.log(chalk.bold('自动检测的 Profiles'));
+    console.log('');
+
+    if (autoProfiles.length === 0) {
+      console.log(chalk.gray('  暂无自动检测的分类'));
+      return;
+    }
+
+    for (const profile of autoProfiles) {
+      const totalSkills = Array.from(profile.sourceSkills.values()).flat().length;
+      const sources = Array.from(profile.sourceSkills.keys()).join(', ');
+      console.log(`  ${chalk.cyan(profile.name)} ${chalk.gray(`(${totalSkills} skills from ${sources})`)}`);
+      const preview = Array.from(profile.sourceSkills.values()).flat().slice(0, 5);
+      for (const skillName of preview) {
+        console.log(`    ${chalk.gray('•')} ${skillName}`);
+      }
+      if (totalSkills > 5) {
+        console.log(chalk.gray(`    ... 还有 ${totalSkills - 5} 个`));
+      }
+      console.log('');
+    }
+
+    console.log(`共 ${autoProfiles.length} 个自动检测的 Profiles`);
     return;
   }
 
