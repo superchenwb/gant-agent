@@ -2,7 +2,8 @@
 
 const { execSync } = require('node:child_process');
 const { existsSync } = require('node:fs');
-const { join, homedir } = require('node:path');
+const { join } = require('node:path');
+const { homedir } = require('node:os');
 
 const MIN_NODE_VERSION = '18.0.0';
 const MIN_BUN_VERSION = '1.0.0';
