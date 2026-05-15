@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { checkForUpdatesBackground } from './utils/version-check.js';
 
-const VERSION = '0.2.2';
+const VERSION = '0.2.3';
 const program = new Command();
 
 program
@@ -84,6 +84,14 @@ program
   .action(async () => {
     const { uninstallCommand } = await import('./commands/uninstall.js');
     await uninstallCommand();
+  });
+
+program
+  .command('upgrade')
+  .description('检查并升级 Gant-Agent 到最新版本')
+  .action(async () => {
+    const { upgradeCommand } = await import('./commands/upgrade.js');
+    await upgradeCommand(VERSION);
   });
 
 program.parse();

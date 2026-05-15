@@ -1,6 +1,6 @@
 {
   "name": "gant-agent",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "团队级 AI 业务知识库管理工具",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

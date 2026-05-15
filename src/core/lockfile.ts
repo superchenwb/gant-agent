@@ -1,4 +1,5 @@
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import yaml from 'js-yaml';
 import { GantLock } from '../models/config.js';
 import { PATHS } from '../utils/paths.js';
@@ -9,6 +10,10 @@ export function writeLock(lock: GantLock): void {
     lineWidth: -1,
     noRefs: true,
   });
+  const lockDir = dirname(PATHS.lock);
+  if (!existsSync(lockDir)) {
+    mkdirSync(lockDir, { recursive: true });
+  }
   writeFileSync(PATHS.lock, content, 'utf-8');
 }
 

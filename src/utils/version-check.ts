@@ -109,7 +109,7 @@ function writeChannelCache(channel: string, latestVersion: string): void {
   }
 }
 
-async function getLatestVersion(channel: string = 'latest'): Promise<string | null> {
+export async function getLatestVersion(channel: string = 'latest'): Promise<string | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), NPM_FETCH_TIMEOUT);
 

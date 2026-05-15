@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-05-15
+
+### Added
+
+- `gant upgrade` 命令：检查 npm 最新版本并自动执行 `npm install -g gant-agent` 升级
+- 升级前检测本地开发模式，避免误升级开发环境
+
+### Fixed
+
+- `writeLock` 自动创建父目录，避免 lockfile 写入时目录不存在报错
+
 ## [0.2.2] - 2026-05-15
 
 ### Added
