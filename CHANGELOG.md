@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-05-15
+
+### Added
+
+- 内置 `gant-upgrade` skill：安装时自动链接到 Agent skills 目录
+- postinstall 脚本自动链接内置 skills 到 `~/.claude/skills/` 等 Agent 目录
+
 ## [0.2.3] - 2026-05-15
 
 ### Added

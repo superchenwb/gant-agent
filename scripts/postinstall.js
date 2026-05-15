@@ -93,6 +93,85 @@ function hasConfig() {
   return false;
 }
 
+function detectAgentSkillDirs() {
+  const { lstatSync, readdirSync } = require('node:fs');
+  const dirs = [];
+  const agents = [
+    { name: 'Claude Code', dir: '.claude' },
+    { name: 'OpenCode', dir: '.opencode' },
+    { name: 'Cursor', dir: '.cursor' },
+  ];
+
+  for (const agent of agents) {
+    const globalDir = join(homedir(), agent.dir, 'skills');
+    if (existsSync(globalDir)) {
+      try {
+        lstatSync(globalDir);
+        dirs.push({ name: agent.name, path: globalDir, scope: 'global' });
+      } catch { }
+    }
+  }
+
+  return dirs;
+}
+
+function linkBuiltinSkills() {
+  const { lstatSync, readdirSync, symlinkSync, unlinkSync, mkdirSync } = require('node:fs');
+
+  const builtinDir = join(__dirname, '..', 'skills');
+  if (!existsSync(builtinDir)) {
+    return { linked: 0, skipped: 0, errors: [] };
+  }
+
+  let linked = 0;
+  let skipped = 0;
+  const errors = [];
+
+  const skillNames = readdirSync(builtinDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+
+  if (skillNames.length === 0) {
+    return { linked: 0, skipped: 0, errors: [] };
+  }
+
+  const agentDirs = detectAgentSkillDirs();
+  if (agentDirs.length === 0) {
+    return { linked: 0, skipped: 0, errors: [], noAgent: true };
+  }
+
+  for (const agent of agentDirs) {
+    for (const skillName of skillNames) {
+      const source = join(builtinDir, skillName);
+      const target = join(agent.path, skillName);
+
+      try {
+        if (existsSync(target)) {
+          const stat = lstatSync(target);
+          if (stat.isSymbolicLink()) {
+            const currentTarget = require('node:fs').readlinkSync(target);
+            if (currentTarget === source) {
+              skipped++;
+              continue;
+            }
+            unlinkSync(target);
+          } else {
+            skipped++;
+            continue;
+          }
+        }
+
+        symlinkSync(source, target, 'junction');
+        linked++;
+      } catch (error) {
+        errors.push({ skill: skillName, agent: agent.name, error: error.message });
+      }
+    }
+  }
+
+  return { linked, skipped, errors };
+}
+
 function main() {
   console.log('🚀 gant-agent postinstall check\n');
 
@@ -121,6 +200,19 @@ function main() {
     console.log(`✓ 检测到 Agent: ${agents.join(', ')}`);
   } else {
     console.log('ℹ 未检测到已安装的 AI Agent');
+  }
+
+  const builtinResult = linkBuiltinSkills();
+  if (builtinResult.noAgent) {
+    console.log('ℹ 未检测到 Agent skills 目录，跳过内置 skill 链接');
+  } else if (builtinResult.linked > 0 || builtinResult.skipped > 0) {
+    console.log(`✓ 内置 skill 链接: ${builtinResult.linked} 个已链接, ${builtinResult.skipped} 个已存在`);
+  }
+
+  if (builtinResult.errors.length > 0) {
+    for (const err of builtinResult.errors) {
+      console.log(`⚠ 链接失败: ${err.skill} (${err.agent}) — ${err.error}`);
+    }
   }
 
   if (!hasConfig()) {
