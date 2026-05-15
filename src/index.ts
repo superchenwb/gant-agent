@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { checkForUpdatesBackground } from './utils/version-check.js';
 
-const VERSION = '0.2.1';
+const VERSION = '0.2.2';
 const program = new Command();
 
 program
@@ -35,7 +35,7 @@ program
 
 program
   .command('use <profile>')
-  .description('切换到指定的 Profile')
+  .description('切换到指定的 Profile，支持组合（如 react,yadea）')
   .action(async (profile) => {
     const { useCommand } = await import('./commands/use.js');
     await useCommand(profile);

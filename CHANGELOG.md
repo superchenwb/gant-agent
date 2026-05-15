@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-05-15
+
+### Added
+
+- `gant use react,yadea` 组合 Profile 支持：逗号分隔多个 profile，同时激活并自动去重
+- 组合 Profile 创建 `profiles/<name1>+<name2>/` 目录，包含所有指定 profile 的 skills（自动去重）
+
 ## [0.2.1] - 2026-05-15
 
 ### Added
 
 - Auto-Profile 自动生成：基于 Skill 路径、名称、frontmatter tags 自动检测分类，`gant list --auto` 查看，`gant use react` 等直接使用
 - `remove <profile>` 命令：删除指定 Profile 及其所有 Agent 符号链接
-- `uninstall` 命令：完全卸载，清理所有配置、缓存和符号链接
+- `uninstall` 命令：完全卸载，清理所有配置和符号链接
 - frontmatter `tags` 字段支持：SKILL.md 可声明 tags，auto-profile 根据 tags 生成分类
 - `gant list --auto` 命令：列出所有自动检测的 Profiles
 
