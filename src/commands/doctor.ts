@@ -1,83 +1,42 @@
-import { existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
 import chalk from 'chalk';
-import { PATHS, getConfigSource, isProjectMode, discoverProjectAgents } from '../utils/paths.js';
+import { runDoctor } from '../cli/doctor/runner.js';
+import {
+  formatDefaultOutput,
+  formatStatusOutput,
+  formatVerboseOutput,
+  formatJsonOutput,
+} from '../cli/doctor/formatter.js';
 
-export async function doctorCommand(): Promise<void> {
-  let hasError = false;
+export interface DoctorCommandOptions {
+  status?: boolean;
+  verbose?: boolean;
+  json?: boolean;
+}
 
-  console.log(chalk.bold('Gant-Agent 环境诊断'));
-  console.log('');
+export async function doctorCommand(options: DoctorCommandOptions = {}): Promise<void> {
+  try {
+    const result = await runDoctor();
 
-  const source = getConfigSource();
-  console.log(`  配置模式: ${isProjectMode() ? chalk.cyan(source) : chalk.gray(source)}`);
+    let output: string;
+    if (options.json) {
+      output = formatJsonOutput(result);
+    } else if (options.status) {
+      output = formatStatusOutput(result);
+    } else if (options.verbose) {
+      output = formatVerboseOutput(result);
+    } else {
+      output = formatDefaultOutput(result);
+    }
 
-  const projectAgents = discoverProjectAgents();
-  const agentNames = Object.keys(projectAgents);
-  if (agentNames.length > 0) {
-    console.log(`  项目级 Agent: ${chalk.green(agentNames.join(', '))}`);
-  } else {
-    console.log(`  项目级 Agent: ${chalk.gray('未检测到')}`);
-  }
+    console.log(output);
 
-  interface Check {
-    name: string;
-    check: () => unknown;
-    validate: (v: unknown) => boolean;
-    message: (v: unknown) => string;
-  }
-
-  const checks: Check[] = [
-    {
-      name: 'Node.js',
-      check: () => process.version,
-      validate: (v) => {
-        const major = parseInt((v as string).slice(1).split('.')[0], 10);
-        return major >= 18;
-      },
-      message: (v) => `${v} (需要 >= 18)`,
-    },
-    {
-      name: 'Git',
-      check: () => {
-        try {
-          return execSync('git --version', { encoding: 'utf-8' }).trim();
-        } catch {
-          return null;
-        }
-      },
-      validate: (v) => v !== null,
-      message: (v) => (v as string | null) || '未安装',
-    },
-    {
-      name: '配置目录',
-      check: () => PATHS.home,
-      validate: () => true,
-      message: (v) => String(v),
-    },
-    {
-      name: '配置文件',
-      check: () => existsSync(PATHS.config),
-      validate: (v) => Boolean(v),
-      message: (v) =>
-        v ? PATHS.config : '未创建（运行 gant init）',
-    },
-  ];
-
-  for (const check of checks) {
-    const value = check.check();
-    const pass = check.validate(value);
-    const icon = pass ? chalk.green('✓') : chalk.red('✗');
-    console.log(`  ${icon} ${check.name}: ${check.message(value)}`);
-    if (!pass) hasError = true;
-  }
-
-  console.log('');
-
-  if (hasError) {
-    console.log(chalk.red('发现环境问题，请修复后重试'));
+    if (result.exitCode !== 0) {
+      process.exit(result.exitCode);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(chalk.red('\nDoctor 诊断失败:'), message);
+    console.error(chalk.gray('尝试运行: gant doctor --verbose 查看详细信息\n'));
     process.exit(1);
-  } else {
-    console.log(chalk.green('环境检查通过'));
   }
 }

@@ -64,6 +64,9 @@ export interface Skill {
   name: string;
   path: string;
   source: string;
+  description?: string;
+  triggers?: string[];
+  tools?: string[];
 }
 
 export interface LockedSource {

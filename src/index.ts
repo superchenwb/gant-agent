@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { checkForUpdates } from './utils/version-check.js';
+import { checkForUpdatesBackground } from './utils/version-check.js';
 
-const VERSION = '0.1.1';
+const VERSION = '0.2.0';
 const program = new Command();
 
 program
@@ -16,6 +16,7 @@ program
   .description('交互式初始化 Gant-Agent 配置')
   .option('-f, --force', '覆盖已有配置')
   .option('-l, --local', '创建项目级配置（当前目录）')
+  .option('--jsonc', '使用 JSONC 格式（带注释的 JSON）')
   .action(async (options) => {
     const { initCommand } = await import('./commands/init.js');
     await initCommand(options);
@@ -59,11 +60,14 @@ program
 program
   .command('doctor')
   .description('诊断环境并修复常见问题')
-  .action(async () => {
+  .option('--status', '显示紧凑状态摘要')
+  .option('--verbose', '显示详细诊断信息')
+  .option('--json', '以 JSON 格式输出')
+  .action(async (options) => {
     const { doctorCommand } = await import('./commands/doctor.js');
-    await doctorCommand();
+    await doctorCommand(options);
   });
 
 program.parse();
 
-checkForUpdates(VERSION);
+checkForUpdatesBackground(VERSION);

@@ -24,19 +24,21 @@ export const AGENT_DIRECTORIES: Array<{ name: string; dir: string }> = [
 export interface GantPaths {
   home: string;
   config: string;
+  configName: string;
   lock: string;
   cache: string;
   profiles: string;
   logs: string;
 }
 
-/**
- * 从指定目录向上查找项目级配置
- */
+const CONFIG_NAMES = ['gant.jsonc', 'gant.json', 'gant.yaml'];
+
 function findProjectRoot(startDir: string = process.cwd()): string | null {
-  const configPath = join(startDir, PROJECT_CONFIG_DIR, 'gant.yaml');
-  if (existsSync(configPath)) {
-    return join(startDir, PROJECT_CONFIG_DIR);
+  for (const configName of CONFIG_NAMES) {
+    const configPath = join(startDir, PROJECT_CONFIG_DIR, configName);
+    if (existsSync(configPath)) {
+      return join(startDir, PROJECT_CONFIG_DIR);
+    }
   }
 
   const parentDir = resolve(startDir, '..');
@@ -47,13 +49,24 @@ function findProjectRoot(startDir: string = process.cwd()): string | null {
   return findProjectRoot(parentDir);
 }
 
+function findConfigName(home: string): string {
+  for (const name of CONFIG_NAMES) {
+    if (existsSync(join(home, name))) {
+      return name;
+    }
+  }
+  return 'gant.yaml';
+}
+
 /**
  * 构建路径对象
  */
 function buildPaths(home: string): GantPaths {
+  const configName = findConfigName(home);
   return {
     home,
-    config: join(home, 'gant.yaml'),
+    config: join(home, configName),
+    configName,
     lock: join(home, 'gant.lock'),
     cache: join(home, 'cache'),
     profiles: join(home, 'profiles'),

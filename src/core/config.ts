@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import yaml from 'js-yaml';
 import { GantConfig, DEFAULT_SETTINGS, type Settings } from '../models/config.js';
 import { PATHS } from '../utils/paths.js';
+import { stripJsonComments } from '../utils/jsonc.js';
 
 export function loadConfig(): GantConfig {
   if (!existsSync(PATHS.config)) {
@@ -11,7 +12,7 @@ export function loadConfig(): GantConfig {
   }
 
   const content = readFileSync(PATHS.config, 'utf-8');
-  const parsed = yaml.load(content) as Record<string, unknown>;
+  const parsed = parseConfig(content, PATHS.configName);
 
   validateConfig(parsed);
 
@@ -26,6 +27,14 @@ export function loadConfig(): GantConfig {
     profiles: parsed.profiles as GantConfig['profiles'],
     settings,
   };
+}
+
+function parseConfig(content: string, configName: string): Record<string, unknown> {
+  if (configName.endsWith('.jsonc') || configName.endsWith('.json')) {
+    const stripped = stripJsonComments(content);
+    return JSON.parse(stripped) as Record<string, unknown>;
+  }
+  return yaml.load(content) as Record<string, unknown>;
 }
 
 function validateConfig(config: Record<string, unknown>): void {

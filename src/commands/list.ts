@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { readLock } from '../core/lockfile.js';
+import { discoverLocalSkills } from '../core/skill-discovery.js';
 
 interface ListOptions {
   profile?: string;
@@ -7,17 +8,13 @@ interface ListOptions {
 
 export async function listCommand(options: ListOptions): Promise<void> {
   const lock = readLock();
-
-  if (!lock) {
-    console.error(chalk.red('锁定文件不存在，请先运行 gant sync'));
-    process.exit(1);
-  }
+  const localDiscovery = await discoverLocalSkills();
 
   if (options.profile) {
-    const profile = lock.profiles[options.profile];
+    const profile = lock?.profiles[options.profile];
     if (!profile) {
       console.error(chalk.red(`Profile "${options.profile}" 不存在`));
-      const available = Object.keys(lock.profiles);
+      const available = lock ? Object.keys(lock.profiles) : [];
       if (available.length > 0) {
         console.error(`可用 Profiles: ${available.join(', ')}`);
       }
@@ -42,25 +39,59 @@ export async function listCommand(options: ListOptions): Promise<void> {
     return;
   }
 
-  console.log(chalk.bold('所有 Skills'));
-  console.log('');
+  if (lock) {
+    console.log(chalk.bold('已同步 Skills'));
+    console.log('');
 
-  let totalSkills = 0;
+    let totalSkills = 0;
 
-  for (const [sourceName, source] of Object.entries(lock.sources)) {
-    console.log(`${chalk.bold(sourceName)} ${chalk.gray(`(${source.resolvedVersion})`)}`);
+    for (const [sourceName, source] of Object.entries(lock.sources)) {
+      console.log(`${chalk.bold(sourceName)} ${chalk.gray(`(${source.resolvedVersion})`)}`);
 
-    if (source.skills.length === 0) {
-      console.log(chalk.gray('  暂无 Skills'));
-    } else {
+      if (source.skills.length === 0) {
+        console.log(chalk.gray('  暂无 Skills'));
+      } else {
       for (const skill of source.skills) {
-        console.log(`  ${chalk.cyan(skill.name)} ${chalk.gray(skill.path)}`);
+        const extras: string[] = [];
+        if (skill.description) extras.push(skill.description);
+        if (skill.triggers) extras.push(`triggers: [${skill.triggers.join(', ')}]`);
+        if (skill.tools) extras.push(`tools: [${skill.tools.join(', ')}]`);
+        const extraStr = extras.length > 0 ? chalk.gray(` — ${extras.join(', ')}`) : '';
+        console.log(`  ${chalk.cyan(skill.name)} ${chalk.gray(skill.path)}${extraStr}`);
       }
+      }
+
+      totalSkills += source.skills.length;
+      console.log('');
     }
 
-    totalSkills += source.skills.length;
+    console.log(`共 ${Object.keys(lock.sources).length} 个知识源，${totalSkills} 个 Skills`);
     console.log('');
   }
 
-  console.log(`共 ${Object.keys(lock.sources).length} 个知识源，${totalSkills} 个 Skills`);
+  if (localDiscovery.skills.length > 0) {
+    console.log(chalk.bold('本地发现 Skills'));
+    console.log('');
+
+    for (const scope of localDiscovery.scopes) {
+      if (scope.skills.length === 0) continue;
+      console.log(`${chalk.bold(scope.scope)} ${chalk.gray(scope.path)}`);
+      for (const skill of scope.skills) {
+        console.log(`  ${chalk.cyan(skill.name)}`);
+      }
+      console.log('');
+    }
+
+    if (localDiscovery.conflicts.length > 0) {
+      console.log(chalk.yellow('冲突（高优先级覆盖低优先级）：'));
+      for (const conflict of localDiscovery.conflicts) {
+        console.log(`  ${chalk.yellow('!')} ${chalk.cyan(conflict.name)}: ${conflict.winner} > ${conflict.losers.join(', ')}`);
+      }
+      console.log('');
+    }
+
+    console.log(`共 ${localDiscovery.skills.length} 个本地 Skills`);
+  } else if (!lock) {
+    console.log(chalk.gray('暂无 Skills。请运行 gant sync 同步知识库，或在 .gant/skills/ 目录放置本地 Skills。'));
+  }
 }

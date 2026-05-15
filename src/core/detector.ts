@@ -28,16 +28,19 @@ export async function detectSkills(
   const rootSkillMd = join(searchRoot, 'SKILL.md');
   try {
     await stat(rootSkillMd);
-    const { name, warnings, valid } = await parseSkillMd(rootSkillMd);
-    for (const w of warnings) {
+    const meta = await parseSkillMd(rootSkillMd);
+    for (const w of meta.warnings) {
       console.warn(`  ⚠ ${sourceName}: ${w}`);
     }
-    if (!valid) return skills;
-    const skillName = name || sourceName;
+    if (!meta.valid) return skills;
+    const skillName = meta.name || sourceName;
     skills.push({
       name: skillName,
       path: relative(rootPath, searchRoot),
       source: sourceName,
+      description: meta.description,
+      triggers: meta.triggers,
+      tools: meta.tools,
     });
     return skills;
   } catch {
@@ -57,16 +60,19 @@ export async function detectSkills(
 
         try {
           await stat(skillMd);
-          const { name, warnings, valid } = await parseSkillMd(skillMd);
-          for (const w of warnings) {
+          const meta = await parseSkillMd(skillMd);
+          for (const w of meta.warnings) {
             console.warn(`  ⚠ ${sourceName}/${entry.name}: ${w}`);
           }
-          if (!valid) continue;
-          const skillName = name || entry.name;
+          if (!meta.valid) continue;
+          const skillName = meta.name || entry.name;
           skills.push({
             name: skillName,
             path: relative(rootPath, skillPath),
             source: sourceName,
+            description: meta.description,
+            triggers: meta.triggers,
+            tools: meta.tools,
           });
         } catch {
           void 0;
@@ -102,16 +108,19 @@ async function walkDirectory(
 
     try {
       await stat(skillMd);
-      const { name, warnings, valid } = await parseSkillMd(skillMd);
-      for (const w of warnings) {
+      const meta = await parseSkillMd(skillMd);
+      for (const w of meta.warnings) {
         console.warn(`  ⚠ ${sourceName}/${entry.name}: ${w}`);
       }
-      if (!valid) continue;
-      const skillName = name || entry.name;
+      if (!meta.valid) continue;
+      const skillName = meta.name || entry.name;
       skills.push({
         name: skillName,
         path: relative(rootPath, subDir),
         source: sourceName,
+        description: meta.description,
+        triggers: meta.triggers,
+        tools: meta.tools,
       });
     } catch {
       await walkDirectory(subDir, rootPath, sourceName, skills, depth + 1);
@@ -121,6 +130,9 @@ async function walkDirectory(
 
 interface SkillMeta {
   name: string | null;
+  description?: string;
+  triggers?: string[];
+  tools?: string[];
   warnings: string[];
   valid: boolean;
 }
@@ -149,7 +161,11 @@ async function parseSkillMd(skillMdPath: string): Promise<SkillMeta> {
           return { name: rawName, warnings, valid: false };
         }
 
-        return { name: rawName, warnings, valid: true };
+        const description = extractFrontmatterField(frontmatter, 'description');
+        const triggers = extractFrontmatterList(frontmatter, 'triggers');
+        const tools = extractFrontmatterList(frontmatter, 'tools');
+
+        return { name: rawName, description, triggers, tools, warnings, valid: true };
       } else {
         warnings.push('SKILL.md frontmatter 缺少 name 字段');
         return { name: null, warnings, valid: false };
@@ -171,4 +187,25 @@ async function parseSkillMd(skillMdPath: string): Promise<SkillMeta> {
   } catch {
     return { name: null, warnings, valid: false };
   }
+}
+
+function extractFrontmatterField(frontmatter: string, field: string): string | undefined {
+  const regex = new RegExp(`^${field}:\\s*(.+)`, 'm');
+  const match = frontmatter.match(regex);
+  return match ? match[1].trim() : undefined;
+}
+
+function extractFrontmatterList(frontmatter: string, field: string): string[] | undefined {
+  const regex = new RegExp(`^${field}:\\s*\\n((?:\\s*-\\s*[^\\n]*\\n?)*)`, 'm');
+  const match = frontmatter.match(regex);
+  if (!match) return undefined;
+
+  const items: string[] = [];
+  const listRegex = /^\s*-\s*(.+)/gm;
+  let listMatch;
+  while ((listMatch = listRegex.exec(match[1])) !== null) {
+    items.push(listMatch[1].trim());
+  }
+
+  return items.length > 0 ? items : undefined;
 }

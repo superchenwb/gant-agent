@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-15
+
+### Added
+
+- 增强版 Doctor 命令：并行检查执行、分类诊断（System/Config/Tools/Skills）、多种输出格式（--status/--verbose/--json）
+- 后台版本检查器：支持版本渠道识别（latest/beta/alpha/next/rc/canary）、本地开发模式自动检测、fetch+AbortController 异步获取、渠道级缓存
+- JSONC 配置支持：配置加载器自动识别 .jsonc/.json/.yaml 格式、gant init --jsonc 创建带注释的 JSONC 配置文件
+- 四层 Skill 发现机制：项目级（.gant/skills/）> 用户级（~/.gant/skills/）> 全局（~/.config/gant/skills/）> 内置，高优先级覆盖低优先级
+- 高级 SKILL.md Frontmatter 解析：支持 description、triggers、tools 字段
+- Postinstall 脚本：安装后自动检测环境、检查 Node.js/Bun 版本兼容性、提示初始化
+
+### Changed
+
+- version-check 从 execSync 改为 fetch+AbortController，支持静默失败和超时控制
+- list 命令同时展示已同步 Skills 和本地发现 Skills
+- 配置加载器优先查找 .jsonc，然后是 .json，最后是 .yaml
+
 ## [0.1.1] - 2026-05-14
 
 ### Added
