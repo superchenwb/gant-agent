@@ -322,6 +322,8 @@ gant list --auto
 > - `backend` — 后端开发
 > - `yadea` / `bom` — 雅迪业务知识
 > - `default` — 手动配置的默认 Profile
+>
+> **可以同时选择多个，用逗号分隔**（例如：`react,yadea`）
 
 **等待用户回答后再继续。**
 
@@ -330,6 +332,8 @@ gant list --auto
 ## 第七步：激活 Profile
 
 根据用户选择执行：
+
+### 单 Profile
 
 ```bash
 gant use <用户选择的分类名>
@@ -343,6 +347,18 @@ gant use backend
 gant use yadea
 gant use default
 ```
+
+### 组合 Profile（同时激活多个）
+
+如果用户选择了多个分类（如 `react,yadea`），用逗号分隔一次性激活：
+
+```bash
+gant use react,yadea
+```
+
+这会创建一个组合 Profile `react+yadea`，包含所有指定的 skills（自动去重）。
+
+**注意**：不要分别执行 `gant use react` 和 `gant use yadea`，因为 `gant use` 是覆盖式的，后执行的会覆盖前一个。
 
 ---
 
@@ -404,8 +420,9 @@ gant sync
 ### 切换技术栈
 
 ```bash
-gant list --auto      # 查看可用分类
-gant use <profile>    # 切换
+gant list --auto            # 查看可用分类
+gant use <profile>          # 切换到单个 Profile
+gant use <profile1>,<profile2>  # 组合多个 Profile（如 react,yadea）
 ```
 
 ### 检查环境

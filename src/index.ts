@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { checkForUpdatesBackground } from './utils/version-check.js';
 
-const VERSION = '0.2.4';
+const VERSION = '0.2.5';
 const program = new Command();
 
 program

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-05-15
+
+### Fixed
+
+- 安装文档补充组合 Profile 说明：第六步和第七步明确提示支持 `react,yadea` 语法
+- 日常维护章节添加组合 Profile 切换示例
+
 ## [0.2.4] - 2026-05-15
 
 ### Added
