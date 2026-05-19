@@ -6,7 +6,18 @@ Gant-Agent 帮助团队将业务知识库（Wiki）和技能仓库一键部署�
 
 ## 快速开始
 
-### 安装
+### 一键安装（推荐）
+
+**把下面这段文字复制粘贴给你的 AI 助手**（Claude、Cursor、OpenCode 等），AI 会自动帮你完成安装：
+
+```
+Install and configure Gant-Agent by following the instructions here:
+https://raw.githubusercontent.com/superchenwb/gant-agent/refs/heads/master/docs/guide/installation.md
+```
+
+### 手动安装
+
+如果你更喜欢手动操作：
 
 ```bash
 npm install -g gant-agent
