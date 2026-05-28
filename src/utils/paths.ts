@@ -153,6 +153,10 @@ export function getSourceCachePath(sourceName: string, commitSha: string): strin
   return join(getPaths().cache, `${sourceName}@${shortSha}`);
 }
 
+export function getEditableSourcePath(sourceName: string): string {
+  return join(getPaths().home, 'sources', sourceName);
+}
+
 export function getProfilePath(profileName: string): string {
   return join(getPaths().profiles, profileName);
 }

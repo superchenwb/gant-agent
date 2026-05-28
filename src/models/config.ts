@@ -11,10 +11,12 @@ export interface RemoteSource {
   repo: string;
   version: string;
   path?: string;
+  editable?: boolean;
 }
 
 export interface LocalSource {
   localPath: string;
+  editable?: boolean;
 }
 
 export type Source = RemoteSource | LocalSource;
@@ -77,6 +79,7 @@ export interface LockedSource {
   resolvedCommit: string;
   path?: string;
   skills: Skill[];
+  editable?: boolean;
 }
 
 export interface LockedProfile {

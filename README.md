@@ -123,7 +123,7 @@ version: '1.0'
 sources:
   yadea-bom:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    version: main
+    version: master
     path: skills/
 
   frontend-v2:

@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { loadConfig } from './config.js';
 import {
   cloneRepo,
@@ -10,7 +11,7 @@ import {
 import { detectSkills } from './detector.js';
 import { linkSkill, cleanProfileLinks } from './linker.js';
 import { readLock, writeLock, createEmptyLock } from './lockfile.js';
-import { PATHS, getSourceCachePath, expandHome } from '../utils/paths.js';
+import { PATHS, getSourceCachePath, getEditableSourcePath, expandHome } from '../utils/paths.js';
 import type { GantConfig, GantLock, LockedSource, Source } from '../models/config.js';
 
 export interface SyncResult {
@@ -125,6 +126,63 @@ async function processSource(
   }
 
   const resolvedCommit = await resolveRemoteCommit(source.repo, source.version);
+
+  // Editable source: clone to ./.gant-agent/sources/<name>/
+  if (source.editable) {
+    const editablePath = getEditableSourcePath(sourceName);
+    await mkdir(editablePath, { recursive: true });
+
+    const isRepo = existsSync(join(editablePath, '.git'));
+
+    if (options.dryRun) {
+      if (!isRepo) {
+        throw new Error(`Editable source 不存在（dry-run 模式不克隆）: ${editablePath}`);
+      }
+      const skills = await detectSkills(editablePath, sourceName, source.path);
+      return {
+        repo: source.repo,
+        resolvedVersion: source.version,
+        resolvedCommit,
+        path: source.path,
+        skills,
+        editable: true,
+      };
+    }
+
+    if (!isRepo) {
+      if (options.verbose) {
+        console.log(`  克隆 editable source ${sourceName} 到 ${editablePath}...`);
+      }
+      await cloneRepo({
+        repo: source.repo,
+        targetPath: editablePath,
+        branch: source.version,
+        depth: 1,
+      });
+    } else {
+      const currentCommit = await getCurrentCommit(editablePath);
+      if (currentCommit !== resolvedCommit) {
+        if (options.verbose) {
+          console.log(`  更新 editable source ${sourceName} (${currentCommit.slice(0, 8)} -> ${resolvedCommit.slice(0, 8)})...`);
+        }
+        await fetchRepo(editablePath);
+      } else if (options.verbose) {
+        console.log(`  跳过 editable source ${sourceName}（版本未变化）`);
+      }
+    }
+
+    const skills = await detectSkills(editablePath, sourceName, source.path);
+    return {
+      repo: source.repo,
+      resolvedVersion: source.version,
+      resolvedCommit,
+      path: source.path,
+      skills,
+      editable: true,
+    };
+  }
+
+  // Non-editable source: clone to cache (original behavior)
   const cachePath = getSourceCachePath(sourceName, resolvedCommit);
 
   if (options.dryRun) {
@@ -211,6 +269,8 @@ async function processProfile(
     let cachePath: string;
     if (lockedSource.localPath) {
       cachePath = expandHome(lockedSource.localPath);
+    } else if (lockedSource.editable) {
+      cachePath = getEditableSourcePath(sourceName);
     } else if (lockedSource.repo) {
       cachePath = getSourceCachePath(sourceName, lockedSource.resolvedCommit);
     } else {
