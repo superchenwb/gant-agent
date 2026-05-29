@@ -149,7 +149,31 @@ gant init --jsonc
 
 ---
 
-**问题 4：Git 访问方式确认（仅远程仓库）**
+**问题 4：需要哪些类型的技术技能**
+
+> `gant-skills` 仓库包含前端、后端、测试、顾问等多种技术技能。
+> 你的项目需要哪些类型？（可多选）
+>
+> 1. 前端开发（React、Vue、ExtJS 等）
+> 2. 后端开发（Java、微服务等）
+> 3. 测试相关
+> 4. 顾问/业务分析
+> 5. 全部都要
+> 6. 暂时不确定 → 跳过，后续手动配置 `exclude`
+>
+> **提示**：如果项目只用 React 2.0 框架，建议选择「1. 前端开发」，系统会自动排除 Vue、ExtJS 等不需要的 skill。
+
+**等待用户回答。**
+
+根据用户选择，在生成的配置文件中加入 `exclude` 排除不需要的目录：
+- 只选前端 → `exclude: [后端, 数据库, 测试, 文档类]`
+- 只选后端 → `exclude: [前端, 测试, 文档类]`
+- 选择多个 → 排除未选的类型
+- 全部都要 或 不确定 → 不添加 `exclude`
+
+---
+
+**问题 5：Git 访问方式确认（仅远程仓库）**
 
 > 如果选择了远程仓库，你的 SSH Key 已配置到 Codeup 吗？
 > 1. 是（使用 SSH 地址）
@@ -174,7 +198,7 @@ version: '1.0'
 sources:
   <知识库名称>:
     repo: <Git 仓库地址>
-    version: main
+    version: master
     path: skills/
 
 profiles:
@@ -202,6 +226,29 @@ profiles:
   - 项目级配置：相对 `./.gant-agent/gant.yaml` 所在目录（即项目根目录）
   - 用户级配置：相对 `~/.gant-agent/gant.yaml` 所在目录（即用户主目录）
 
+### 4.3 排除不需要的 Skill 目录
+
+如果某个知识源包含多种技术栈，但你只需要其中一部分，可以使用 `exclude` 排除特定目录。
+
+**适用场景**：
+- 公司技能库包含 `Vue`、`React`、`ExtJS` 等多种前端框架，但你的项目只用 React
+- 技能库包含大量后端技能，但前端项目不需要
+
+**用法**：在 source 配置中添加 `exclude` 数组，列出要跳过的目录名。
+
+```yaml
+sources:
+  gant-skills:
+    repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+    version: master
+    path: /
+    exclude:
+      - Vue
+      - ExtJS
+```
+
+**工作原理**：`gant sync` 扫描 skill 时，会跳过 `exclude` 中指定的目录名（精确匹配）。被排除目录下的所有 skill 不会被检测、不会进入 lock 文件、也不会被链接到 Profile 中。
+
 ---
 
 **示例 1：远程仓库（雅迪 BOM + 技术技能包）**
@@ -211,16 +258,40 @@ version: '1.0'
 sources:
   yadea-bom:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    version: main
+    version: master
     path: skills/
   gant-skills:
     repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
-    version: main
+    version: master
     path: /
 
 profiles:
   default:
     - yadea-bom
+    - gant-skills
+```
+
+**示例 1b：排除特定技术栈（如排除 Vue 和 ExtJS）**
+```yaml
+version: '1.0'
+
+sources:
+  yadea-bom:
+    repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
+    version: master
+    path: skills/
+  gant-skills:
+    repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+    version: master
+    path: /
+    exclude:
+      - Vue
+      - ExtJS
+
+profiles:
+  default:
+    - yadea-bom
+    - gant-skills
 ```
 
 **示例 2：本地目录（项目内知识库）**
@@ -247,12 +318,15 @@ sources:
     localPath: ../yadea-wiki/skills
   gant-skills:
     repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
-    version: main
+    version: master
     path: /
+    exclude:
+      - Vue
 
 profiles:
   default:
     - yadea-bom
+    - gant-skills
 ```
 
 ---

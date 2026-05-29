@@ -32,13 +32,13 @@ sources:
   # 业务知识库（Wiki）
   company-wiki:
     repo: git@codeup.aliyun.com:your-company/wiki.git
-    version: main
+    version: master
     path: skills/        # Skill 存放在仓库的 skills/ 目录下
 
   # 技术规范
   tech-specs:
     repo: git@codeup.aliyun.com:your-company/tech-skills.git
-    version: main
+    version: master
 
 profiles:
   default:

@@ -20,11 +20,13 @@ const EXCLUDED_DIRS = new Set([
 export async function detectSkills(
   rootPath: string,
   sourceName: string,
-  subPath?: string
+  subPath?: string,
+  exclude?: string[]
 ): Promise<Skill[]> {
   const searchRoot = subPath ? join(rootPath, subPath) : rootPath;
   const skills: Skill[] = [];
   const scannedPaths = new Set<string>();
+  const excludeSet = exclude ? new Set(exclude) : null;
 
   const rootSkillMd = join(searchRoot, 'SKILL.md');
   try {
@@ -57,6 +59,7 @@ export async function detectSkills(
       const entries = await readdir(skillsDir, { withFileTypes: true });
       for (const entry of entries) {
         if (!entry.isDirectory()) continue;
+        if (excludeSet?.has(entry.name)) continue;
 
         const skillPath = join(skillsDir, entry.name);
         const skillMd = join(skillPath, 'SKILL.md');
@@ -87,7 +90,7 @@ export async function detectSkills(
     void 0;
   }
 
-  await walkDirectory(searchRoot, rootPath, sourceName, skills, scannedPaths);
+  await walkDirectory(searchRoot, rootPath, sourceName, skills, scannedPaths, excludeSet);
   return skills;
 }
 
@@ -97,6 +100,7 @@ async function walkDirectory(
   sourceName: string,
   skills: Skill[],
   scannedPaths: Set<string> = new Set(),
+  excludeSet: Set<string> | null = null,
   depth = 0
 ): Promise<void> {
   if (depth >= SCAN_DEPTH_LIMIT) return;
@@ -106,6 +110,7 @@ async function walkDirectory(
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     if (EXCLUDED_DIRS.has(entry.name)) continue;
+    if (excludeSet?.has(entry.name)) continue;
 
     const subDir = join(dir, entry.name);
     if (scannedPaths.has(subDir)) continue;
@@ -129,7 +134,7 @@ async function walkDirectory(
         tools: meta.tools,
       });
     } catch {
-      await walkDirectory(subDir, rootPath, sourceName, skills, scannedPaths, depth + 1);
+      await walkDirectory(subDir, rootPath, sourceName, skills, scannedPaths, excludeSet, depth + 1);
     }
   }
 }

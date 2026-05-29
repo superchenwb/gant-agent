@@ -12,11 +12,13 @@ export interface RemoteSource {
   version: string;
   path?: string;
   editable?: boolean;
+  exclude?: string[];
 }
 
 export interface LocalSource {
   localPath: string;
   editable?: boolean;
+  exclude?: string[];
 }
 
 export type Source = RemoteSource | LocalSource;

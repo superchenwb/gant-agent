@@ -28,7 +28,7 @@ sources:
   # 业务知识库（Wiki）
   yadea-bom:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    version: main                  # 可以是 branch、tag 或 commit SHA
+    version: master                  # 可以是 branch、tag 或 commit SHA
     path: skills/                  # 仓库中 skill 所在的子目录（可选，默认自动检测）
 
   # 技术技能包
@@ -39,7 +39,7 @@ sources:
 
   backend:
     repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
-    version: main
+    version: master
     path: backend/
 
   # 本地目录（开发调试用）
@@ -148,7 +148,7 @@ generatedAt: '2026-05-14T10:30:00Z'
 sources:
   yadea-bom:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    resolvedVersion: main
+    resolvedVersion: master
     resolvedCommit: abc123def4567890abcdef1234567890abcdef12  # 40 位完整 SHA
     path: skills/
     skills:                      # 检测到的所有 Skill
@@ -249,7 +249,7 @@ version: '1.0'
 sources:
   wiki:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    version: main
+    version: master
 
 profiles:
   default:
@@ -277,7 +277,7 @@ sources:
 
   backend:
     repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
-    version: main
+    version: master
     path: backend/
 
   local-dev:

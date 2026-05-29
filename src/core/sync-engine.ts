@@ -110,7 +110,7 @@ async function processSource(
       console.log(`  本地源未变化，跳过同步: ${sourceName}`);
     }
 
-    const skills = await detectSkills(localPath, sourceName);
+    const skills = await detectSkills(localPath, sourceName, undefined, source.exclude);
 
     return {
       localPath: source.localPath,
@@ -138,7 +138,7 @@ async function processSource(
       if (!isRepo) {
         throw new Error(`Editable source 不存在（dry-run 模式不克隆）: ${editablePath}`);
       }
-      const skills = await detectSkills(editablePath, sourceName, source.path);
+      const skills = await detectSkills(editablePath, sourceName, source.path, source.exclude);
       return {
         repo: source.repo,
         resolvedVersion: source.version,
@@ -171,7 +171,7 @@ async function processSource(
       }
     }
 
-    const skills = await detectSkills(editablePath, sourceName, source.path);
+    const skills = await detectSkills(editablePath, sourceName, source.path, source.exclude);
     return {
       repo: source.repo,
       resolvedVersion: source.version,
@@ -190,7 +190,7 @@ async function processSource(
       throw new Error(`缓存不存在（dry-run 模式不克隆）: ${cachePath}`);
     }
 
-    const skills = await detectSkills(cachePath, sourceName, source.path);
+    const skills = await detectSkills(cachePath, sourceName, source.path, source.exclude);
     return {
       repo: source.repo,
       resolvedVersion: source.version,
@@ -238,7 +238,7 @@ async function processSource(
     });
   }
 
-  const skills = await detectSkills(cachePath, sourceName, source.path);
+  const skills = await detectSkills(cachePath, sourceName, source.path, source.exclude);
 
   return {
     repo: source.repo,

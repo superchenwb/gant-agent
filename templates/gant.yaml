@@ -12,7 +12,7 @@ sources:
   # 示例 1：业务知识库（远程仓库）
   yadea-bom:
     repo: git@codeup.aliyun.com:gant/wiki/yadea-wiki.git
-    version: main                 # branch / tag / commit SHA
+    version: master                 # branch / tag / commit SHA
     path: skills/                 # 可选：只取仓库内这个子目录
 
   # 示例 2：技术技能包（远程仓库）
@@ -21,9 +21,18 @@ sources:
     version: framework-v2
     path: frontend/framework-v2/
 
+  # 示例 2b：加载整个前端目录，但排除 Vue 相关 skill
+  frontend-all:
+    repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
+    version: master
+    path: frontend/
+    exclude:
+      - Vue
+      - ExtJS
+
   backend:
     repo: git@codeup.aliyun.com:gant/Project-AI/gant-skills.git
-    version: main
+    version: master
     path: backend/
 
   # 示例 3：本地开发目录（本地路径）
