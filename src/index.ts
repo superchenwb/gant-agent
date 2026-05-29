@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { checkForUpdatesBackground } from './utils/version-check.js';
+import { createPreferenceCommand } from './commands/preference.js';
 
 const VERSION = '0.2.5';
 const program = new Command();
@@ -93,6 +94,8 @@ program
     const { upgradeCommand } = await import('./commands/upgrade.js');
     await upgradeCommand(VERSION);
   });
+
+program.addCommand(createPreferenceCommand());
 
 program.parse();
 
