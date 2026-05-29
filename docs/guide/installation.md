@@ -299,7 +299,7 @@ gant preference --check installation-tech-skills 2>/dev/null || echo "ASK_NORMAL
 
 **第二步：询问用户（仅在需要时）**
 
-**STOP.** Do NOT proceed until user responds。
+**STOP.** Do NOT proceed until user responds.
 
 ```
 D4 — 是否加载公司技术技能包
